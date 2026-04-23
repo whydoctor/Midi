@@ -1,4 +1,4 @@
-namespace ChordForge.Domain;
+namespace Chordara.Domain;
 
 public enum Quality
 {

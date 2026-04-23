@@ -4,9 +4,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using ChordForge.ViewModels;
+using Chordara.ViewModels;
 
-namespace ChordForge.Views;
+namespace Chordara.Views;
 
 public partial class PianoRollView : UserControl
 {

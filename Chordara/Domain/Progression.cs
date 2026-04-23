@@ -1,4 +1,4 @@
-namespace ChordForge.Domain;
+namespace Chordara.Domain;
 
 public sealed record Progression(IReadOnlyList<Chord> Chords)
 {

@@ -1,8 +1,8 @@
 using System.Windows;
 using System.Windows.Input;
-using ChordForge.ViewModels;
+using Chordara.ViewModels;
 
-namespace ChordForge.Views;
+namespace Chordara.Views;
 
 public partial class MainWindow : Window
 {
@@ -33,7 +33,7 @@ public partial class MainWindow : Window
         {
             MessageBox.Show(this,
                 "Could not prepare MIDI for drag-out:\n\n" + ex.Message,
-                "ChordForge", MessageBoxButton.OK, MessageBoxImage.Warning);
+                "Chordara", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 }

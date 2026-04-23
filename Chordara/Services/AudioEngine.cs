@@ -1,8 +1,8 @@
-using ChordForge.Domain;
+using Chordara.Domain;
 using MeltySynth;
 using NAudio.Wave;
 
-namespace ChordForge.Services;
+namespace Chordara.Services;
 
 /// <summary>
 /// Bridges MeltySynth (pure-C# SoundFont synth) into NAudio's WaveOutEvent.

@@ -1,6 +1,6 @@
-using ChordForge.Domain;
+using Chordara.Domain;
 
-namespace ChordForge.Services;
+namespace Chordara.Services;
 
 /// <summary>
 /// Generates diatonic chord progressions with optional modal interchange

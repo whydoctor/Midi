@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:c="clr-namespace:ChordForge.Converters">
+                    xmlns:c="clr-namespace:Chordara.Converters">
     <c:BeatsToPxConverter x:Key="BeatsToPx"/>
     <c:PitchToPxConverter x:Key="PitchToPx"/>
 </ResourceDictionary>

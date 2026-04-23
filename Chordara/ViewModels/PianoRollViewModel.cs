@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
-using ChordForge.Domain;
-using ChordForge.Services;
+using Chordara.Domain;
+using Chordara.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace ChordForge.ViewModels;
+namespace Chordara.ViewModels;
 
 public partial class PianoRollViewModel : ObservableObject
 {

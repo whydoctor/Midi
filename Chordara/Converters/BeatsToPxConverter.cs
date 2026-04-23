@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Windows.Data;
-using ChordForge.ViewModels;
+using Chordara.ViewModels;
 
-namespace ChordForge.Converters;
+namespace Chordara.Converters;
 
 public sealed class BeatsToPxConverter : IValueConverter
 {

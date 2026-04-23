@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace ChordForge.ViewModels;
+namespace Chordara.ViewModels;
 
 public partial class NoteViewModel : ObservableObject
 {

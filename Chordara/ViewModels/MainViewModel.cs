@@ -1,10 +1,10 @@
-using ChordForge.Domain;
-using ChordForge.Services;
+using Chordara.Domain;
+using Chordara.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 
-namespace ChordForge.ViewModels;
+namespace Chordara.ViewModels;
 
 public partial class MainViewModel : ObservableObject, IDisposable
 {
@@ -90,7 +90,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (PianoRoll.Notes.Count == 0) Generate();
 
-        string dir  = Path.Combine(Path.GetTempPath(), "ChordForge");
+        string dir  = Path.Combine(Path.GetTempPath(), "Chordara");
         Directory.CreateDirectory(dir);
         string file = Path.Combine(dir, SuggestFileName());
 
@@ -100,7 +100,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     private string SuggestFileName() =>
-        $"ChordForge_{SelectedKey}_{SelectedScale}_{SelectedMood}_{Bpm}bpm.mid"
+        $"Chordara_{SelectedKey}_{SelectedScale}_{SelectedMood}_{Bpm}bpm.mid"
             .Replace('#', 's');
 
     public void Dispose()

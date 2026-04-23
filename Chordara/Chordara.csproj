@@ -3,18 +3,18 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <RootNamespace>ChordForge</RootNamespace>
-    <AssemblyName>ChordForge</AssemblyName>
+    <RootNamespace>Chordara</RootNamespace>
+    <AssemblyName>Chordara</AssemblyName>
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>chordforge.ico</ApplicationIcon>
+    <ApplicationIcon>chordara.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Resource Include="chordforge.ico" />
+    <Resource Include="chordara.ico" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

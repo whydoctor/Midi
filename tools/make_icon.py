@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Generate a ChordForge app icon (PNG + ICO). One-shot tool, not part of build."""
+"""Generate a Chordara app icon (PNG + ICO). One-shot tool, not part of build."""
 import struct, zlib, os
 
 OUT_DIR = os.path.dirname(os.path.abspath(__file__))
-ICO_PATH = os.path.join(OUT_DIR, "..", "ChordForge", "chordforge.ico")
-PNG_PATH = os.path.join(OUT_DIR, "..", "ChordForge", "Assets", "chordforge.png")
+ICO_PATH = os.path.join(OUT_DIR, "..", "Chordara", "chordara.ico")
+PNG_PATH = os.path.join(OUT_DIR, "..", "Chordara", "Assets", "chordara.png")
 
 BG   = (0x1E, 0x1E, 0x22, 0xFF)   # app bg
 CARD = (0x26, 0x26, 0x2C, 0xFF)   # rounded card

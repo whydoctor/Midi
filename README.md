@@ -1,4 +1,4 @@
-# ChordForge
+# Chordara
 
 A small Windows desktop app (WPF / .NET 8 / C#) that generates chord
 progressions, plays them with a SoundFont synth, lets you tweak them in a
@@ -23,19 +23,19 @@ Requires .NET 8 SDK on Windows.
 
 ```powershell
 dotnet build -c Release
-dotnet run   --project ChordForge
+dotnet run   --project Chordara
 ```
 
 ## Self-contained single-file EXE
 
 ```powershell
-dotnet publish ChordForge -c Release -o publish
-# -> publish\ChordForge.exe (no external runtime required)
+dotnet publish Chordara -c Release -o publish
+# -> publish\Chordara.exe (no external runtime required)
 ```
 
 ## SoundFont (required for playback)
 
-ChordForge looks for any `*.sf2` in `ChordForge/Assets/` (next to the EXE
+Chordara looks for any `*.sf2` in `Chordara/Assets/` (next to the EXE
 after publish) and loads the first one it finds. Without an SF2 you can
 still generate, edit, export, and drag-out MIDI — only audio preview is
 disabled.
@@ -49,7 +49,7 @@ options include:
 ## Project layout
 
 ```
-ChordForge/
+Chordara/
 ├─ Domain/        Note / Scale / Chord / Mood / Progression  (pure music theory)
 ├─ Services/      ChordGenerator · MidiExporter · AudioEngine
 ├─ ViewModels/    MainViewModel · PianoRollViewModel · NoteViewModel

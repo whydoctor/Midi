@@ -1,9 +1,9 @@
-using ChordForge.Domain;
+using Chordara.Domain;
 using Melanchall.DryWetMidi.Common;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 
-namespace ChordForge.Services;
+namespace Chordara.Services;
 
 public readonly record struct PianoRollNote(int Pitch, double StartBeat, double LengthBeats, int Velocity = 96);
 

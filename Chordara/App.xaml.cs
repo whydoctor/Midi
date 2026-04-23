@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace ChordForge;
+namespace Chordara;
 
 public partial class App : Application
 {
