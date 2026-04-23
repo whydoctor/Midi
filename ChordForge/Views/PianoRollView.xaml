@@ -1,57 +1,82 @@
 <UserControl x:Class="ChordForge.Views.PianoRollView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="clr-namespace:ChordForge.ViewModels"
-             d:DataContext="{d:DesignInstance Type=vm:PianoRollViewModel}"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:ChordForge.ViewModels"
              mc:Ignorable="d"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
-    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                  Background="{StaticResource Bg2}">
-        <Grid>
-            <!-- Background grid -->
-            <Canvas x:Name="GridCanvas"
-                    Width="{Binding CanvasWidth}"
+             d:DataContext="{d:DesignInstance Type=vm:PianoRollViewModel}"
+             Loaded="UserControl_Loaded"
+             DataContextChanged="UserControl_DataContextChanged">
+    <Grid Background="{StaticResource Bg2}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="56"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Keyboard column (vertically scroll-synced to the roll) -->
+        <ScrollViewer x:Name="KbScroller" Grid.Column="0"
+                      VerticalScrollBarVisibility="Hidden"
+                      HorizontalScrollBarVisibility="Disabled"
+                      PreviewMouseWheel="KbScroller_PreviewMouseWheel">
+            <Canvas x:Name="KbCanvas"
+                    Width="56"
                     Height="{Binding CanvasHeight}"
-                    Background="{StaticResource Bg}"/>
+                    Background="{StaticResource Bg3}"
+                    IsHitTestVisible="False"/>
+        </ScrollViewer>
 
-            <!-- Notes layer (clickable) -->
-            <ItemsControl ItemsSource="{Binding Notes}"
-                          x:Name="NotesItems"
-                          Background="Transparent"
-                          MouseLeftButtonDown="Canvas_MouseLeftButtonDown">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas x:Name="NotesCanvas"
-                                Width="{Binding CanvasWidth}"
-                                Height="{Binding CanvasHeight}"
-                                Background="Transparent"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+        <!-- Main roll -->
+        <ScrollViewer x:Name="RollScroller" Grid.Column="1"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto"
+                      ScrollChanged="RollScroller_ScrollChanged">
+            <Grid>
+                <!-- Grid backdrop: row shading, beat/bar lines -->
+                <Canvas x:Name="GridCanvas"
+                        Width="{Binding CanvasWidth}"
+                        Height="{Binding CanvasHeight}"
+                        Background="{StaticResource Bg}"
+                        IsHitTestVisible="False"/>
 
-                <ItemsControl.ItemContainerStyle>
-                    <Style>
-                        <Setter Property="Canvas.Left"
-                                Value="{Binding StartBeat, Converter={StaticResource BeatsToPx}}"/>
-                        <Setter Property="Canvas.Top"
-                                Value="{Binding Pitch, Converter={StaticResource PitchToPx}}"/>
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
+                <!-- Notes + click-to-add -->
+                <ItemsControl ItemsSource="{Binding Notes}"
+                              x:Name="NotesItems"
+                              Background="Transparent"
+                              MouseLeftButtonDown="Canvas_MouseLeftButtonDown">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas x:Name="NotesCanvas"
+                                    Width="{Binding CanvasWidth}"
+                                    Height="{Binding CanvasHeight}"
+                                    Background="Transparent"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
 
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Height="11" Cursor="SizeAll"
-                              MouseLeftButtonDown="Note_MouseLeftButtonDown"
-                              MouseRightButtonDown="Note_MouseRightButtonDown"
-                              Width="{Binding LengthBeats, Converter={StaticResource BeatsToPx}}">
-                            <Rectangle Fill="{StaticResource NoteFill}" RadiusX="2" RadiusY="2" Opacity="0.95"/>
-                            <Rectangle Width="6" HorizontalAlignment="Right" Cursor="SizeWE"
-                                       Fill="#80FFFFFF"
-                                       MouseLeftButtonDown="Resize_MouseLeftButtonDown"/>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Grid>
-    </ScrollViewer>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style>
+                            <Setter Property="Canvas.Left"
+                                    Value="{Binding StartBeat, Converter={StaticResource BeatsToPx}}"/>
+                            <Setter Property="Canvas.Top"
+                                    Value="{Binding Pitch, Converter={StaticResource PitchToPx}}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Height="11" Cursor="SizeAll"
+                                  MouseLeftButtonDown="Note_MouseLeftButtonDown"
+                                  MouseRightButtonDown="Note_MouseRightButtonDown"
+                                  Width="{Binding LengthBeats, Converter={StaticResource BeatsToPx}}">
+                                <Rectangle Fill="{StaticResource NoteFill}" RadiusX="2" RadiusY="2" Opacity="0.95"/>
+                                <Rectangle Width="6" HorizontalAlignment="Right" Cursor="SizeWE"
+                                           Fill="#80FFFFFF"
+                                           MouseLeftButtonDown="Resize_MouseLeftButtonDown"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

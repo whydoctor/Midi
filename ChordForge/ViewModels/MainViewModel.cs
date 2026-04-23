@@ -6,7 +6,7 @@ using Microsoft.Win32;
 
 namespace ChordForge.ViewModels;
 
-public partial class MainViewModel : ObservableObject
+public partial class MainViewModel : ObservableObject, IDisposable
 {
     private readonly ChordGenerator _generator = new();
     private readonly MidiExporter   _exporter  = new();
@@ -102,4 +102,9 @@ public partial class MainViewModel : ObservableObject
     private string SuggestFileName() =>
         $"ChordForge_{SelectedKey}_{SelectedScale}_{SelectedMood}_{Bpm}bpm.mid"
             .Replace('#', 's');
+
+    public void Dispose()
+    {
+        _audio.Dispose();
+    }
 }

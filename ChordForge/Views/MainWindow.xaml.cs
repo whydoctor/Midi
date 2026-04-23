@@ -8,6 +8,12 @@ public partial class MainWindow : Window
 {
     public MainWindow() => InitializeComponent();
 
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        (DataContext as IDisposable)?.Dispose();
+    }
+
     /// <summary>
     /// Drag-out: writes the current piano roll to a temp .mid and starts a
     /// FileDrop drag operation. The user can drop the file onto Explorer, the

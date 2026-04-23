@@ -4,6 +4,7 @@
         xmlns:v="clr-namespace:ChordForge.Views"
         xmlns:vm="clr-namespace:ChordForge.ViewModels"
         Title="ChordForge"
+        Icon="/chordforge.ico"
         Height="680" Width="1100"
         Background="{StaticResource Bg}"
         Foreground="{StaticResource Fg}"
