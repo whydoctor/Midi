@@ -1,0 +1,8 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+publish/
+*.sf2
+!ChordForge/Assets/.gitkeep
