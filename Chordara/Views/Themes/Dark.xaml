@@ -23,19 +23,72 @@
     </Style>
 
     <Style TargetType="ComboBox">
-        <Setter Property="Background" Value="{StaticResource Bg3}"/>
-        <Setter Property="Foreground" Value="{StaticResource Fg}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
-        <Setter Property="Padding" Value="6,3"/>
-        <Setter Property="MinHeight" Value="26"/>
-        <Style.Resources>
-            <!-- Override system brushes so the closed selection and popup are dark. -->
-            <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}"      Color="#2E2E36"/>
-            <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}"  Color="#EAEAEA"/>
-            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}"     Color="#2E2E36"/>
-            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"   Color="#3D7DBF"/>
-            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#EAEAEA"/>
-        </Style.Resources>
+        <Setter Property="Background"    Value="{StaticResource Bg3}"/>
+        <Setter Property="Foreground"    Value="{StaticResource Fg}"/>
+        <Setter Property="BorderBrush"   Value="{StaticResource Border}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding"       Value="6,3"/>
+        <Setter Property="MinHeight"     Value="26"/>
+        <Setter Property="Cursor"        Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <!-- Clickable background / border -->
+                        <ToggleButton x:Name="toggleButton"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay,
+                                                  RelativeSource={RelativeSource TemplatedParent}}"
+                                      Focusable="False" ClickMode="Press">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="b"
+                                            Background="{Binding Background, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                            BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                            BorderThickness="{Binding BorderThickness, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                            CornerRadius="3">
+                                        <TextBlock Text="▾" HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,6,0"
+                                                   Foreground="{StaticResource FgMuted}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="b" Property="BorderBrush" Value="{StaticResource Accent}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+
+                        <!-- Selected item display -->
+                        <ContentPresenter Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Left"
+                                          IsHitTestVisible="False"
+                                          TextBlock.Foreground="{TemplateBinding Foreground}"/>
+
+                        <!-- Dropdown popup -->
+                        <Popup x:Name="PART_Popup"
+                               IsOpen="{TemplateBinding IsDropDownOpen}"
+                               Placement="Bottom"
+                               AllowsTransparency="True"
+                               Focusable="False">
+                            <Border Background="{StaticResource Bg3}"
+                                    BorderBrush="{StaticResource Border}"
+                                    BorderThickness="1"
+                                    MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- Items inside the ComboBox dropdown popup. Self-paint each row so it
