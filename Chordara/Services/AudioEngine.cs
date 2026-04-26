@@ -23,9 +23,8 @@ internal sealed class SineSampleProvider : ISampleProvider
     private readonly List<Voice> _voices = new();
     private readonly object _gate = new();
 
-    private const float Gain           = 0.10f;  // tuned for up to 8 simultaneous voices
-    private const float HarmonicMix    = 0.08f;
-    private const int   AttackSamples  = 44100 / 80;     // ~12 ms
+    private const float Gain           = 0.10f;
+    private const int   AttackSamples  = 44100 / 25;     // ~40 ms — softer onset
     private const int   ReleaseSamples = 44100 / 6;      // ~167 ms
 
     public void NoteOn(int midi)
@@ -70,11 +69,7 @@ internal sealed class SineSampleProvider : ISampleProvider
                 {
                     float env = Envelope(v);
                     if (env > 0f)
-                    {
-                        float fund = (float)Math.Sin(v.Phase);
-                        float harm = (float)Math.Sin(v.Phase * 2.0) * HarmonicMix;
-                        sample += (fund + harm) * env;
-                    }
+                        sample += (float)Math.Sin(v.Phase) * env;
                     v.Phase += 2.0 * Math.PI * v.Frequency / sr;
                     if (v.Phase > 2.0 * Math.PI) v.Phase -= 2.0 * Math.PI;
                     v.AgeSamples++;

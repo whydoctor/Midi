@@ -29,10 +29,12 @@
         <Setter Property="Padding" Value="6,3"/>
         <Setter Property="MinHeight" Value="26"/>
         <Style.Resources>
-            <!-- Override the system brushes the default popup template uses,
-                 so the dropdown background is dark instead of white. -->
-            <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}"  Color="#2E2E36"/>
-            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#2E2E36"/>
+            <!-- Override system brushes so the closed selection and popup are dark. -->
+            <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}"      Color="#2E2E36"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}"  Color="#EAEAEA"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}"     Color="#2E2E36"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"   Color="#3D7DBF"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#EAEAEA"/>
         </Style.Resources>
     </Style>
 
