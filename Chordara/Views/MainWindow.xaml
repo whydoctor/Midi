@@ -55,6 +55,10 @@
                 <TextBlock Text="Beats / chord"/>
                 <TextBox Width="60" Text="{Binding BeatsPerChord, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
+            <StackPanel Margin="0,0,12,0">
+                <TextBlock Text="Octave"/>
+                <ComboBox Width="60" ItemsSource="{Binding Octaves}" SelectedItem="{Binding Octave}"/>
+            </StackPanel>
             <Button Content="Generate" Command="{Binding GenerateCommand}"
                     Margin="6,18,0,0" Padding="20,6" FontWeight="SemiBold"/>
         </WrapPanel>

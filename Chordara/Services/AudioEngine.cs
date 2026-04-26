@@ -122,13 +122,14 @@ public sealed class AudioEngine : IDisposable
         _out.Play();
     }
 
-    public async Task PlayAsync(Progression prog, int bpm, int beatsPerChord = 4, CancellationToken ct = default)
+    public async Task PlayAsync(Progression prog, int bpm, int beatsPerChord = 4, int octaveShift = 0, CancellationToken ct = default)
     {
         Stop();
         _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         var token = _cts.Token;
 
         double secondsPerChord = 60.0 / bpm * beatsPerChord;
+        int semitones = octaveShift * 12;
 
         try
         {
@@ -137,7 +138,7 @@ public sealed class AudioEngine : IDisposable
                 token.ThrowIfCancellationRequested();
                 _provider.AllOff();
                 foreach (int p in chord.Voicing())
-                    _provider.NoteOn(p);
+                    _provider.NoteOn(p + semitones);
 
                 await Task.Delay(TimeSpan.FromSeconds(secondsPerChord), token);
             }

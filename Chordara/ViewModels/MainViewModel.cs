@@ -17,6 +17,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public IReadOnlyList<ScaleType>  Scales   { get; } = Enum.GetValues<ScaleType>();
     public IReadOnlyList<Mood>       Moods    { get; } = Enum.GetValues<Mood>();
     public IReadOnlyList<int>        Lengths  { get; } = new[] { 4, 8, 12, 16 };
+    public IReadOnlyList<int>        Octaves  { get; } = new[] { -2, -1, 0, 1, 2 };
 
     [ObservableProperty] private string     selectedKey   = "C";
     [ObservableProperty] private ScaleType  selectedScale = ScaleType.Major;
@@ -24,6 +25,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private int        length        = 8;
     [ObservableProperty] private int        bpm           = 100;
     [ObservableProperty] private int        beatsPerChord = 4;
+    [ObservableProperty] private int        octave        = 0;
     [ObservableProperty] private string     statusMessage = "Ready.";
     [ObservableProperty] private string     progressionLabel = "";
     [ObservableProperty] private bool       isPlaying;
@@ -49,7 +51,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         IsPlaying = true;
         StatusMessage = "Playing…";
-        try { await _audio.PlayAsync(_current, Bpm, BeatsPerChord); }
+        try { await _audio.PlayAsync(_current, Bpm, BeatsPerChord, Octave); }
         finally
         {
             IsPlaying = false;
