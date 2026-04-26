@@ -11,6 +11,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly ChordGenerator _generator = new();
     private readonly MidiExporter   _exporter  = new();
     private readonly AudioEngine    _audio     = new();
+    private readonly AppSettings    _settings  = AppSettings.Load();
 
     public IReadOnlyList<string>     Keys     { get; } = Scale.PitchClassNames;
     public IReadOnlyList<ScaleType>  Scales   { get; } = Enum.GetValues<ScaleType>();
@@ -33,10 +34,17 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public MainViewModel()
     {
-        if (_audio.TryAutoLoadSoundFont())
+        // Try (in order): .sf2 in /Assets, then last user-loaded path, then give up.
+        if (_audio.TryAutoLoadSoundFont() ||
+            (!string.IsNullOrWhiteSpace(_settings.SoundFontPath) &&
+             _audio.LoadSoundFont(_settings.SoundFontPath!)))
+        {
             StatusMessage = $"SoundFont: {Path.GetFileName(_audio.LoadedSoundFontPath)}";
+        }
         else
-            StatusMessage = "No SoundFont in /Assets — playback disabled. Drop a .sf2 there.";
+        {
+            StatusMessage = "No SoundFont loaded — click 'Load SoundFont…' to enable playback.";
+        }
     }
 
     [RelayCommand]
@@ -52,11 +60,39 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private async Task Play()
     {
         if (_current is null) Generate();
-        if (_current is null || !_audio.IsReady) return;
+        if (_current is null) return;
+
+        if (!_audio.IsReady)
+        {
+            StatusMessage = "No SoundFont loaded — click 'Load SoundFont…' to enable playback.";
+            return;
+        }
 
         IsPlaying = true;
         try { await _audio.PlayAsync(_current, Bpm, BeatsPerChord); }
         finally { IsPlaying = false; }
+    }
+
+    [RelayCommand]
+    private void LoadSoundFont()
+    {
+        var dlg = new OpenFileDialog
+        {
+            Filter = "SoundFont files (*.sf2)|*.sf2|All files (*.*)|*.*",
+            Title  = "Choose a SoundFont (.sf2)"
+        };
+        if (dlg.ShowDialog() != true) return;
+
+        if (_audio.LoadSoundFont(dlg.FileName))
+        {
+            _settings.SoundFontPath = dlg.FileName;
+            _settings.Save();
+            StatusMessage = $"SoundFont: {Path.GetFileName(dlg.FileName)}";
+        }
+        else
+        {
+            StatusMessage = $"Could not load SoundFont: {Path.GetFileName(dlg.FileName)}";
+        }
     }
 
     [RelayCommand]
