@@ -23,7 +23,7 @@ internal sealed class SineSampleProvider : ISampleProvider
     private readonly List<Voice> _voices = new();
     private readonly object _gate = new();
 
-    private const float Gain           = 0.22f;
+    private const float Gain           = 0.10f;  // tuned for up to 8 simultaneous voices
     private const float HarmonicMix    = 0.08f;
     private const int   AttackSamples  = 44100 / 80;     // ~12 ms
     private const int   ReleaseSamples = 44100 / 6;      // ~167 ms
@@ -65,7 +65,6 @@ internal sealed class SineSampleProvider : ISampleProvider
             for (int i = 0; i < count; i++)
             {
                 float sample = 0f;
-                int active = 0;
 
                 foreach (var v in _voices)
                 {
@@ -75,18 +74,13 @@ internal sealed class SineSampleProvider : ISampleProvider
                         float fund = (float)Math.Sin(v.Phase);
                         float harm = (float)Math.Sin(v.Phase * 2.0) * HarmonicMix;
                         sample += (fund + harm) * env;
-                        active++;
                     }
                     v.Phase += 2.0 * Math.PI * v.Frequency / sr;
                     if (v.Phase > 2.0 * Math.PI) v.Phase -= 2.0 * Math.PI;
                     v.AgeSamples++;
                 }
 
-                // Soft normalization so a 4-note chord doesn't clip.
-                if (active > 0)
-                    sample = sample * Gain / (float)Math.Sqrt(active);
-
-                buffer[offset + i] = sample;
+                buffer[offset + i] = sample * Gain;
             }
 
             // Reap finished voices.
@@ -123,7 +117,7 @@ public sealed class AudioEngine : IDisposable
     public AudioEngine()
     {
         _provider = new SineSampleProvider();
-        _out = new WaveOutEvent { DesiredLatency = 80 };
+        _out = new WaveOutEvent { DesiredLatency = 200, NumberOfBuffers = 4 };
         _out.Init(_provider);
         _out.Play();
     }
