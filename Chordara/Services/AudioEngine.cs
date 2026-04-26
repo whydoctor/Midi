@@ -24,7 +24,7 @@ internal sealed class SineSampleProvider : ISampleProvider
     private readonly object _gate = new();
 
     private const float Gain           = 0.22f;
-    private const float HarmonicMix    = 0.18f;          // touch of warmth vs. pure sine
+    private const float HarmonicMix    = 0.08f;
     private const int   AttackSamples  = 44100 / 80;     // ~12 ms
     private const int   ReleaseSamples = 44100 / 6;      // ~167 ms
 
@@ -35,7 +35,7 @@ internal sealed class SineSampleProvider : ISampleProvider
             _voices.Add(new Voice
             {
                 Frequency  = MidiToFreq(midi),
-                Phase      = 0,
+                Phase      = Random.Shared.NextDouble() * 2.0 * Math.PI,
                 AgeSamples = 0
             });
         }
