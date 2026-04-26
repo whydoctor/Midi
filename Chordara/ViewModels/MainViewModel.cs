@@ -11,7 +11,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly ChordGenerator _generator = new();
     private readonly MidiExporter   _exporter  = new();
     private readonly AudioEngine    _audio     = new();
-    private readonly AppSettings    _settings  = AppSettings.Load();
 
     public IReadOnlyList<string>     Keys     { get; } = Scale.PitchClassNames;
     public IReadOnlyList<ScaleType>  Scales   { get; } = Enum.GetValues<ScaleType>();
@@ -32,21 +31,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     private Progression? _current;
 
-    public MainViewModel()
-    {
-        // Try (in order): .sf2 in /Assets, then last user-loaded path, then give up.
-        if (_audio.TryAutoLoadSoundFont() ||
-            (!string.IsNullOrWhiteSpace(_settings.SoundFontPath) &&
-             _audio.LoadSoundFont(_settings.SoundFontPath!)))
-        {
-            StatusMessage = $"SoundFont: {Path.GetFileName(_audio.LoadedSoundFontPath)}";
-        }
-        else
-        {
-            StatusMessage = "No SoundFont loaded — click 'Load SoundFont…' to enable playback.";
-        }
-    }
-
     [RelayCommand]
     private void Generate()
     {
@@ -62,36 +46,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (_current is null) Generate();
         if (_current is null) return;
 
-        if (!_audio.IsReady)
-        {
-            StatusMessage = "No SoundFont loaded — click 'Load SoundFont…' to enable playback.";
-            return;
-        }
-
         IsPlaying = true;
+        StatusMessage = "Playing…";
         try { await _audio.PlayAsync(_current, Bpm, BeatsPerChord); }
-        finally { IsPlaying = false; }
-    }
-
-    [RelayCommand]
-    private void LoadSoundFont()
-    {
-        var dlg = new OpenFileDialog
+        finally
         {
-            Filter = "SoundFont files (*.sf2)|*.sf2|All files (*.*)|*.*",
-            Title  = "Choose a SoundFont (.sf2)"
-        };
-        if (dlg.ShowDialog() != true) return;
-
-        if (_audio.LoadSoundFont(dlg.FileName))
-        {
-            _settings.SoundFontPath = dlg.FileName;
-            _settings.Save();
-            StatusMessage = $"SoundFont: {Path.GetFileName(dlg.FileName)}";
-        }
-        else
-        {
-            StatusMessage = $"Could not load SoundFont: {Path.GetFileName(dlg.FileName)}";
+            IsPlaying = false;
+            StatusMessage = "Ready.";
         }
     }
 

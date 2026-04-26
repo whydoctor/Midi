@@ -77,11 +77,8 @@
         <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,4,0,0">
             <Button Content="▶ Play"  Command="{Binding PlayCommand}"  Padding="14,6"/>
             <Button Content="■ Stop"  Command="{Binding StopCommand}"  Padding="14,6" Margin="8,0,0,0"/>
-            <Button Content="Load SoundFont…" Command="{Binding LoadSoundFontCommand}"
-                    Padding="14,6" Margin="24,0,0,0"
-                    ToolTip="Pick any .sf2 SoundFont file. The path is remembered between sessions."/>
             <Button Content="Export MIDI…" Command="{Binding ExportCommand}"
-                    Padding="14,6" Margin="8,0,0,0"/>
+                    Padding="14,6" Margin="24,0,0,0"/>
 
             <!-- Drag-out chip: drag from here onto Explorer / your DAW -->
             <Border x:Name="DragChip"

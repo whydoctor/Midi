@@ -27,13 +27,8 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
-    <PackageReference Include="MeltySynth" Version="2.4.1" />
     <PackageReference Include="Melanchall.DryWetMidi" Version="7.2.0" />
     <PackageReference Include="NAudio" Version="2.2.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Assets\**\*.sf2" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

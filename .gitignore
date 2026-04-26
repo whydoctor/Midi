@@ -4,5 +4,3 @@ obj/
 *.user
 *.suo
 publish/
-*.sf2
-!Chordara/Assets/.gitkeep

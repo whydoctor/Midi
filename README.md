@@ -1,8 +1,9 @@
 # Chordara
 
 A small Windows desktop app (WPF / .NET 8 / C#) that generates chord
-progressions, plays them with a SoundFont synth, lets you tweak them in a
-piano roll, and exports / drags out a MIDI file.
+progressions, plays them through a built-in sine-wave synth, lets you tweak
+them in a piano roll, and exports / drags out a MIDI file. No setup, no
+external assets — clone, build, run.
 
 ## Features
 
@@ -11,8 +12,8 @@ piano roll, and exports / drags out a MIDI file.
   dominants** (`V/V`, `V7/vi`, `vii°7/V`, …).
 - **Piano-roll editor** — click empty space to add a note, left-drag to
   move, right-edge handle to resize, right-click to delete.
-- **Playback** — pure-C# SoundFont synth ([MeltySynth](https://github.com/sinshu/meltysynth))
-  routed through NAudio. No external installs.
+- **Playback** — built-in polyphonic sine-wave synth (NAudio output). No
+  SoundFont, no external installs.
 - **MIDI export** — `Export MIDI…` button writes a `.mid` file.
 - **Drag-and-drop MIDI** — drag the **⇲ Drag MIDI** chip from the toolbar
   straight onto the desktop, Explorer, or your DAW.
@@ -33,19 +34,6 @@ dotnet publish Chordara -c Release -o publish
 # -> publish\Chordara.exe (no external runtime required)
 ```
 
-## SoundFont (required for playback)
-
-Chordara looks for any `*.sf2` in `Chordara/Assets/` (next to the EXE
-after publish) and loads the first one it finds. Without an SF2 you can
-still generate, edit, export, and drag-out MIDI — only audio preview is
-disabled.
-
-Drop in any GM-compatible SoundFont. Small, freely-redistributable
-options include:
-
-- **TimGM6mb.sf2** (~6 MB, GM)
-- **GeneralUser GS** (~30 MB, higher quality)
-
 ## Project layout
 
 ```
@@ -55,7 +43,7 @@ Chordara/
 ├─ ViewModels/    MainViewModel · PianoRollViewModel · NoteViewModel
 ├─ Views/         MainWindow + PianoRollView (+ Themes/Dark.xaml)
 ├─ Converters/    Beats↔px, Pitch↔px
-└─ Assets/        Drop your .sf2 here
+└─ Assets/        App icon
 ```
 
 ## Roman-numeral grammar (for `ChordGenerator`)

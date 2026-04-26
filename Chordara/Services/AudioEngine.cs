@@ -1,122 +1,135 @@
 using Chordara.Domain;
-using MeltySynth;
 using NAudio.Wave;
 
 namespace Chordara.Services;
 
 /// <summary>
-/// Bridges MeltySynth (pure-C# SoundFont synth) into NAudio's WaveOutEvent.
-/// Stereo, IEEE float, 44.1 kHz.
+/// Polyphonic sine-wave synth with a small ASR envelope. No external
+/// dependencies, no SoundFont — playback works out of the box.
 /// </summary>
-internal sealed class MeltySynthSampleProvider : ISampleProvider
+internal sealed class SineSampleProvider : ISampleProvider
 {
-    private readonly Synthesizer _synth;
-    private readonly float[] _left;
-    private readonly float[] _right;
+    public WaveFormat WaveFormat { get; } = WaveFormat.CreateIeeeFloatWaveFormat(44100, 1);
+
+    private sealed class Voice
+    {
+        public double Frequency;
+        public double Phase;
+        public int    AgeSamples;
+        public bool   Releasing;
+        public int    ReleaseStartAge;
+    }
+
+    private readonly List<Voice> _voices = new();
     private readonly object _gate = new();
 
-    public WaveFormat WaveFormat { get; }
+    private const float Gain           = 0.22f;
+    private const float HarmonicMix    = 0.18f;          // touch of warmth vs. pure sine
+    private const int   AttackSamples  = 44100 / 80;     // ~12 ms
+    private const int   ReleaseSamples = 44100 / 6;      // ~167 ms
 
-    public MeltySynthSampleProvider(Synthesizer synth, int blockSize = 1024)
+    public void NoteOn(int midi)
     {
-        _synth  = synth;
-        _left   = new float[blockSize];
-        _right  = new float[blockSize];
-        WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(synth.SampleRate, 2);
+        lock (_gate)
+        {
+            _voices.Add(new Voice
+            {
+                Frequency  = MidiToFreq(midi),
+                Phase      = 0,
+                AgeSamples = 0
+            });
+        }
     }
 
-    public void NoteOn(int channel, int key, int velocity)
+    /// <summary>Trigger release on every active voice.</summary>
+    public void AllOff()
     {
-        lock (_gate) _synth.NoteOn(channel, key, velocity);
-    }
-
-    public void NoteOff(int channel, int key)
-    {
-        lock (_gate) _synth.NoteOff(channel, key);
-    }
-
-    public void AllNotesOff()
-    {
-        lock (_gate) _synth.NoteOffAll(false);
-    }
-
-    public void ProgramChange(int channel, int program)
-    {
-        lock (_gate) _synth.ProcessMidiMessage(channel, 0xC0, program, 0);
+        lock (_gate)
+        {
+            foreach (var v in _voices)
+            {
+                if (!v.Releasing)
+                {
+                    v.Releasing       = true;
+                    v.ReleaseStartAge = v.AgeSamples;
+                }
+            }
+        }
     }
 
     public int Read(float[] buffer, int offset, int count)
     {
-        // count is total interleaved samples (2 per frame).
-        int frames     = count / 2;
-        int framesDone = 0;
-
-        while (framesDone < frames)
+        lock (_gate)
         {
-            int chunk = Math.Min(_left.Length, frames - framesDone);
-            lock (_gate)
-                _synth.Render(_left.AsSpan(0, chunk), _right.AsSpan(0, chunk));
-
-            for (int i = 0; i < chunk; i++)
+            double sr = WaveFormat.SampleRate;
+            for (int i = 0; i < count; i++)
             {
-                int idx = offset + (framesDone + i) * 2;
-                buffer[idx]     = _left[i];
-                buffer[idx + 1] = _right[i];
+                float sample = 0f;
+                int active = 0;
+
+                foreach (var v in _voices)
+                {
+                    float env = Envelope(v);
+                    if (env > 0f)
+                    {
+                        float fund = (float)Math.Sin(v.Phase);
+                        float harm = (float)Math.Sin(v.Phase * 2.0) * HarmonicMix;
+                        sample += (fund + harm) * env;
+                        active++;
+                    }
+                    v.Phase += 2.0 * Math.PI * v.Frequency / sr;
+                    if (v.Phase > 2.0 * Math.PI) v.Phase -= 2.0 * Math.PI;
+                    v.AgeSamples++;
+                }
+
+                // Soft normalization so a 4-note chord doesn't clip.
+                if (active > 0)
+                    sample = sample * Gain / (float)Math.Sqrt(active);
+
+                buffer[offset + i] = sample;
             }
-            framesDone += chunk;
+
+            // Reap finished voices.
+            _voices.RemoveAll(v =>
+                v.Releasing && (v.AgeSamples - v.ReleaseStartAge) >= ReleaseSamples + 64);
         }
         return count;
     }
+
+    private static float Envelope(Voice v)
+    {
+        if (!v.Releasing)
+        {
+            if (v.AgeSamples < AttackSamples)
+                return v.AgeSamples / (float)AttackSamples;
+            return 1f;
+        }
+        int relAge = v.AgeSamples - v.ReleaseStartAge;
+        if (relAge >= ReleaseSamples) return 0f;
+        return 1f - relAge / (float)ReleaseSamples;
+    }
+
+    private static double MidiToFreq(int m) => 440.0 * Math.Pow(2.0, (m - 69) / 12.0);
 }
 
 public sealed class AudioEngine : IDisposable
 {
-    public bool IsReady { get; private set; }
-    public string? LoadedSoundFontPath { get; private set; }
+    public bool IsReady => true;
 
-    private WaveOutEvent? _out;
-    private MeltySynthSampleProvider? _provider;
+    private readonly WaveOutEvent _out;
+    private readonly SineSampleProvider _provider;
     private CancellationTokenSource? _cts;
 
-    /// <summary>
-    /// Loads any .sf2 in the Assets folder (next to the executable). Returns false if
-    /// none was found; playback will be a no-op until a SoundFont is supplied.
-    /// </summary>
-    public bool TryAutoLoadSoundFont()
+    public AudioEngine()
     {
-        string baseDir = AppContext.BaseDirectory;
-        string assets  = Path.Combine(baseDir, "Assets");
-        if (!Directory.Exists(assets)) return false;
-
-        string? sf2 = Directory.EnumerateFiles(assets, "*.sf2").FirstOrDefault();
-        return sf2 != null && LoadSoundFont(sf2);
-    }
-
-    public bool LoadSoundFont(string path)
-    {
-        if (!File.Exists(path)) return false;
-
-        Stop();
-        _out?.Dispose();
-
-        var synth = new Synthesizer(path, 44100);
-        _provider = new MeltySynthSampleProvider(synth);
+        _provider = new SineSampleProvider();
         _out = new WaveOutEvent { DesiredLatency = 80 };
         _out.Init(_provider);
         _out.Play();
-
-        // GM program 0 = Acoustic Grand Piano. Many SF2s default elsewhere.
-        _provider.ProgramChange(0, 0);
-
-        LoadedSoundFontPath = path;
-        IsReady = true;
-        return true;
     }
 
     public async Task PlayAsync(Progression prog, int bpm, int beatsPerChord = 4, CancellationToken ct = default)
     {
-        if (!IsReady || _provider is null) return;
-
         Stop();
         _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         var token = _cts.Token;
@@ -128,9 +141,9 @@ public sealed class AudioEngine : IDisposable
             foreach (var chord in prog.Chords)
             {
                 token.ThrowIfCancellationRequested();
-                _provider.AllNotesOff();
+                _provider.AllOff();
                 foreach (int p in chord.Voicing())
-                    _provider.NoteOn(0, p, 96);
+                    _provider.NoteOn(p);
 
                 await Task.Delay(TimeSpan.FromSeconds(secondsPerChord), token);
             }
@@ -138,20 +151,19 @@ public sealed class AudioEngine : IDisposable
         catch (OperationCanceledException) { /* normal stop */ }
         finally
         {
-            _provider.AllNotesOff();
+            _provider.AllOff();
         }
     }
 
     public void Stop()
     {
         _cts?.Cancel();
-        _provider?.AllNotesOff();
+        _provider.AllOff();
     }
 
     public void Dispose()
     {
         Stop();
-        _out?.Dispose();
-        _out = null;
+        _out.Dispose();
     }
 }
